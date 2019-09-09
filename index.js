@@ -66,6 +66,12 @@ app.use(
 );
 app.use(cors());
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
 app.post("/completeTest/:testId", (req, res) => {
     const filter = { "tokenId": req.params.testId };
     const update = { "timeLeft": 0, "state": req.body };
@@ -91,7 +97,7 @@ app.get("/getAllTests",(req,res)=>{
         for(var i=0;i<docs.length;i++){   
             tokens.push(docs[i]);
         }
-        res.status(400);
+        res.status(200);
         res.json({
             list:tokens
         });
