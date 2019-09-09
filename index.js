@@ -87,15 +87,37 @@ app.post("/completeTest/:testId", (req, res) => {
 //get the list of all the tests
 app.get("/getAllTests",(req,res)=>{
     var tokens=[];
-    testState.find({},function (err, docs) {
-        for(var i=0;i<docs.length;i++){      
-            tokens.push(docs[i].tokenId);
+    testState.find({},{tokenId:1,username:1},function (err, docs) {
+        for(var i=0;i<docs.length;i++){   
+            tokens.push(docs[i]);
         }
         res.status(400);
         res.json({
             list:tokens
         });
     });
+});
+
+
+//addComment
+app.post("/addComment",(req,res)=>{
+    var tokenId=req.body.tokenId;
+    var questionNo=req.body.questionNo;
+    var comment=req.body.comment;
+    console.log(questionNo);
+    console.log(comment);
+    const filter = { "tokenId": tokenId, "state.questionNo": questionNo };
+    testState.update(filter, 
+        {$push: {"state.$.comments": comment}
+    }, (err, querySet) => {
+        console.log(querySet);
+        if (err) {
+            res.json({ error: err });
+        } else {
+            res.json({ message: querySet });
+        }
+    });
+
 });
 
 app.post("/updateState/:testId/:questionNo", (req, res) => {
@@ -157,8 +179,8 @@ app.post("/initTest", (req, res) => {
     }
 
 });
-app.get("/getTest/:testId", (req, res) => {
-    testState.findOne({ 'tokenId': req.params.testId }, function (err, querySet) {
+app.get("/getTest/:tokenId", (req, res) => {
+    testState.findOne({ 'tokenId': req.params.tokenId }, function (err, querySet) {
         res.json({ result: querySet });
     });
 });
